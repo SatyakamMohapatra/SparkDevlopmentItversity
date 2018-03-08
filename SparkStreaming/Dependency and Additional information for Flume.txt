@@ -1,0 +1,48 @@
+import org.apache.spark.SparkConf
+import org.apachi.spark.streaming.{StreamingContext,Seconds}
+import org.apache.spark.streaming.flume._
+
+
+spark-submit \
+  --class DeptCount \
+  --master yarn \
+  --conf spark.ui.port=12654 \
+departmentwisecount_2.11-0.1.jar \
+yarn-client gw02.itversity.com 9998
+  
+
+/deptWiseTraffic/-1520401200000..cnt
+
+
+spark-submit \
+--class StreamingWordCount \
+--master yarn \
+--conf spark.ui.port=12367 \
+untitled2_2.11-0.1.jar yarn-client gw02.itversity.com 9998
+
+spark-submit \
+--class DeptWiseCountWithFlume \
+--master yarn \
+--conf spark.ui.port=12986 \
+--jars "/usr/hdp/2.5.0.0-1245/spark/lib/spark-streaming-flume-sink_2.10-1.6.2.jar,/usr/hdp/2.5.0.0-1245/spark/lib/spark-streaming-flume_2.10-1.6.2.jar,/usr/hdp/2.5.0.0-1245/flume/lib/commons-lang3-3.5.jar,/usr/hdp/2.5.0.0-1245/flume/lib/flume-ng-sdk-1.5.2.2.5.0.0-1245.jar" \
+departmentwisecountflume_2.11-0.1.jar yarn-client gw02.itversity.com 9943 
+ //usr/hdp/2.3.0.0.*/spark/lib
+ //pwd
+
+//for flume and scala intregration 
+//https://spark.apache.org/docs/1.6.3/streaming-flume-integration.html
+//build.sbt
+libraryDependencies += "org.apache.spark" % "spark-core_2.10" % "1.6.3"
+libraryDependencies += "org.apache.spark" % "spark-streaming_2.10" % "1.6.3"
+
+//it is not in documentation but we have to add it
+libraryDependencies += "org.apache.spark" % "spark-streaming-flume_2.10" % "1.6.3" 
+libraryDependencies += "org.apache.spark" % "spark-streaming-flume-sink_2.10" % "1.6.3"
+libraryDependencies += "org.scala-lang" % "scala-library" % "2.10.6"
+libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.3.2"
+
+//code
+
+ import org.apache.spark.streaming.flume._
+
+ val flumeStream = FlumeUtils.createPollingStream(streamingContext, [sink machine hostname], [sink port])

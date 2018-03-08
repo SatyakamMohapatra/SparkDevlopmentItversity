@@ -1,0 +1,59 @@
+Crime Count By Month by type
+
+Details - Duration 40 minutes
+Data set URL130
+Choose language of your choice Python or Scala
+Data is available in HDFS file system under /public/crime/csv
+You can check properties of files using hadoop fs -ls -h /public/crime/csv
+Structure of data (ID,Case Number,Date,Block,IUCR,Primary Type,Description,Location Description,Arrest,Domestic,Beat,District,Ward,Community Area,FBI Code,X Coordinate,Y Coordinate,Year,Updated On,Latitude,Longitude,Location)
+File format - text file
+Delimiter - “,”
+Get monthly count of primary crime type, sorted by month in ascending and number of crimes per type in descending order
+Store the result in HDFS path /user/<YOUR_USER_ID>/solutions/solution01/crimes_by_type_by_month
+Output File Format: TEXT
+Output Columns: Month in YYYYMM format, crime count, crime type
+Output Delimiter: \t (tab delimited)
+Output Compression: gzip
+Validation
+Solutions
+In Scala using Core API148
+In Scala using Data Frames and SQL171
+
+-----------------------------------------------------------------------------------------
+Solutions
+
+5679861,HN486359,07/24/2007 04:00:00 PM,028XX W POLK ST,1320,CRIMINAL DAMAGE,TO VEHICLE,STREET,false,true,1135,011,2,27,14,1157552,1896244,2007,04/15/2016 08:55:02 AM,41.871052912,-87.697039137,"(41.871052912, -87.697039137)"
+
+2,5
+-------------------------------------------------------------------------------------------------------------
+Spark Shell
+
+val crimeDateRDD = sc.textFile("/public/crime/csv")
+val header = crimeData.first
+val crimeDateRDDfilter = crimeData.filter(criminalRecord => criminalRecord != header)
+
+crimeDateRDD.take(10).foreach(println)
+val CrimeDateMap = crimeDateRDDfilter.map(rec =>{
+val date = rec.split(",")(2)
+val crime = rec.split(",")(5)
+val dateSplit = date.split("/")
+val d = dateSplit(2).substring(0,4)+dateSplit(0)
+((d.toInt,crime),1)
+})
+CrimeDateMap.first
+
+val CrimeDateMapCount = CrimeDateMap.reduceByKey(_+_)
+CrimeDateMapCount.first
+
+
+val CrimeDateMapSort = CrimeDateMapCount.map(rec=>((rec._1._1,-rec._2),(rec._1._2,rec._1._1,rec._2))).sortByKey()
+CrimeDateMapSort.first
+CrimeDateMapSort.take(10).foreach(println)
+
+val finalOutput = CrimeDateMapSort.map(rec=> rec._2._2+"\t"+rec._2._3+"\t"+rec._2._1)
+finalOutput.first
+finalOutput.take(10).foreach(println)
+
+/user/satya123zx/solutions/solution01/crimes_by_type_by_month
+
+ finalOutput.coalesce(1).saveAsTextFile("/user/satya123zx/solutions/solution01/crimes_by_type_by_month/coalesce1",classOf[org.apache.hadoop.io.compress.GzipCodec])

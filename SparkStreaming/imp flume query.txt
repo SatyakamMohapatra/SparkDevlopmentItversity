@@ -1,0 +1,3 @@
+to run flume flume-ng agent -n <sdc|agent Name> -f <sdc.conf|config File Name>
+https://spark.apache.org/docs/1.6.3/streaming-flume-integration.html
+http://archive-primary.cloudera.com/cdh5/cdh/5/flume-ng-1.6.0-cdh5.10.1/FlumeUserGuide.html
